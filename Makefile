@@ -7,11 +7,12 @@ CFLAGSW += -Wbad-function-cast -Wcast-align -Wcast-qual -Wchar-subscripts -Wmiss
 
 LDFLAGS = -lm
 
+rax-test: rax-test.o rax.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
 rax.o: rax.c
 	$(CC) $(CFLAGS) $(CFLAGSW) -o $@ -c $<
 
 rax-test.o: rax-test.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-rax-test: rax-test.o rax.o
-	$(CC) -o $@ $^ $(LDFLAGS)
