@@ -1,26 +1,8 @@
-DEBUG?= -g -ggdb
-CFLAGS?= -O2 -Wall -W -std=c99
-LDFLAGS= -lm
+CC=gcc
 
-# Uncomment the following two lines for coverage testing
-#
-# CFLAGS+=-fprofile-arcs -ftest-coverage
-# LDFLAGS+=-lgcov
+CFLAGS  = -Os -g -fno-common 
+CFLAGS += -W -Wall -Wbad-function-cast -Wcast-align -Wcast-qual -Wchar-subscripts -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wredundant-decls -Wshadow -Wstrict-prototypes -Wwrite-strings -Wswitch-enum
+CFLAGS += -D_FILE_OFFSET_BITS=64 
 
-all: rax-test rax-oom-test
-
-rax.o: rax.h
-rax-test.o: rax.h
-rax-oom-test.o: rax.h
-
-rax-test: rax-test.o rax.o rc4rand.o crc16.o
-	$(CC) -o $@ $^ $(LDFLAGS) $(DEBUG)
-
-rax-oom-test: rax-oom-test.o rax.o
-	$(CC) -o $@ $^ $(LDFLAGS) $(DEBUG)
-
-.c.o:
-	$(CC) -c $(CFLAGS) $(DEBUG) $<
-
-clean:
-	rm -f rax-test rax-oom-test *.gcda *.gcov *.gcno *.o
+rax.o: rax.c
+	$(CC) $(CFLAGS) -o $@ -c $<
