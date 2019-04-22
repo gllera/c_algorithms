@@ -1885,7 +1885,7 @@ void raxRecursiveShow(int level, int lpad, raxNode *n) {
     }
     raxNode **cp = raxNodeFirstChildPtr(n);
     for (int i = 0; i < numchildren; i++) {
-        char *branch = " `-(%c) ";
+        const char *branch = " `-(%c) ";
         if (numchildren > 1) {
             printf("\n");
             for (int j = 0; j < lpad; j++) putchar(' ');
@@ -1944,7 +1944,8 @@ unsigned long raxTouch(raxNode *n) {
     debugf("Touching %p\n", (void*)n);
     unsigned long sum = 0;
     if (n->iskey) {
-        sum += (unsigned long)raxGetData(n);
+        void *data = raxGetData(n);
+        sum += (unsigned long)data;
     }
 
     int numchildren = n->iscompr ? 1 : n->size;
