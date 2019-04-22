@@ -56,13 +56,13 @@ raxNode **raxFindParentLink(raxNode *parent, raxNode *child);
 raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **child);
 raxNode *raxReallocForData(raxNode *n, void *data);
 void raxRecursiveShow(int level, int lpad, raxNode *n);
-void raxRecursiveFree(rax *rax, raxNode *n, void (*free_callback)(void*));
+void raxRecursiveFree(raxTree *rax, raxNode *n, void (*free_callback)(void*));
 void raxIteratorDelChars(raxIterator *it, size_t count);
 int raxIteratorPrevStep(raxIterator *it, int noup);
 int raxIteratorNextStep(raxIterator *it, int noup);
 int raxIteratorAddChars(raxIterator *it, unsigned char *s, size_t len);
 int raxSeekGreatest(raxIterator *it);
-int raxGenericInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite);
+int raxGenericInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite);
 
 /* This is a special pointer that is guaranteed to never have the same value
  * of a radix tree node. It's used in order to report "not found" error without
@@ -220,8 +220,8 @@ raxNode *raxNewNode(size_t children, int datafield) {
 
 /* Allocate a new rax and return its pointer. On out of memory the function
  * returns NULL. */
-rax *raxNew(void) {
-    rax *rax = rax_malloc(sizeof(*rax));
+raxTree *raxNew(void) {
+    raxTree *rax = rax_malloc(sizeof(*rax));
     if (rax == NULL) return NULL;
     rax->numele = 0;
     rax->numnodes = 1;
@@ -476,7 +476,7 @@ raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **chi
  * means that the current node represents the key (that is, none of the
  * compressed node characters are needed to represent the key, just all
  * its parents nodes). */
-static inline size_t raxLowWalk(rax *rax, unsigned char *s, size_t len, raxNode **stopnode, raxNode ***plink, int *splitpos, raxStack *ts) {
+static inline size_t raxLowWalk(raxTree *rax, unsigned char *s, size_t len, raxNode **stopnode, raxNode ***plink, int *splitpos, raxStack *ts) {
     raxNode *h = rax->head;
     raxNode **parentlink = &rax->head;
 
@@ -526,7 +526,7 @@ static inline size_t raxLowWalk(rax *rax, unsigned char *s, size_t len, raxNode 
  * function returns 0 as well but sets errno to ENOMEM, otherwise errno will
  * be set to 0.
  */
-int raxGenericInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite) {
+int raxGenericInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite) {
     size_t i;
     int j = 0; /* Split position. If raxLowWalk() stops in a compressed
                   node, the index 'j' represents the char we stopped within the
@@ -921,21 +921,21 @@ oom:
 
 /* Overwriting insert. Just a wrapper for raxGenericInsert() that will
  * update the element if there is already one for the same key. */
-int raxInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old) {
+int raxInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old) {
     return raxGenericInsert(rax,s,len,data,old,1);
 }
 
 /* Non overwriting insert function: this if an element with the same key
  * exists, the value is not updated and the function returns 0.
  * This is a just a wrapper for raxGenericInsert(). */
-int raxTryInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old) {
+int raxTryInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old) {
     return raxGenericInsert(rax,s,len,data,old,0);
 }
 
 /* Find a key in the rax, returns raxNotFound special void pointer value
  * if the item was not found, otherwise the value associated with the
  * item is returned. */
-void *raxFind(rax *rax, unsigned char *s, size_t len) {
+void *raxFind(raxTree *rax, unsigned char *s, size_t len) {
     raxNode *h;
 
     debugf("### Lookup: %.*s\n", (int)len, s);
@@ -1039,7 +1039,7 @@ raxNode *raxRemoveChild(raxNode *parent, raxNode *child) {
 
 /* Remove the specified item. Returns 1 if the item was found and
  * deleted, 0 otherwise. */
-int raxRemove(rax *rax, unsigned char *s, size_t len, void **old) {
+int raxRemove(raxTree *rax, unsigned char *s, size_t len, void **old) {
     raxNode *h;
     raxStack ts;
 
@@ -1240,7 +1240,7 @@ int raxRemove(rax *rax, unsigned char *s, size_t len, void **old) {
 
 /* This is the core of raxFree(): performs a depth-first scan of the
  * tree and releases all the nodes found. */
-void raxRecursiveFree(rax *rax, raxNode *n, void (*free_callback)(void*)) {
+void raxRecursiveFree(raxTree *rax, raxNode *n, void (*free_callback)(void*)) {
     debugnode("free traversing",n);
     int numchildren = n->iscompr ? 1 : n->size;
     raxNode **cp = raxNodeLastChildPtr(n);
@@ -1259,14 +1259,14 @@ void raxRecursiveFree(rax *rax, raxNode *n, void (*free_callback)(void*)) {
 
 /* Free a whole radix tree, calling the specified callback in order to
  * free the auxiliary data. */
-void raxFreeWithCallback(rax *rax, void (*free_callback)(void*)) {
+void raxFreeWithCallback(raxTree *rax, void (*free_callback)(void*)) {
     raxRecursiveFree(rax,rax->head,free_callback);
     assert(rax->numnodes == 0);
     rax_free(rax);
 }
 
 /* Free a whole radix tree. */
-void raxFree(rax *rax) {
+void raxFree(raxTree *rax) {
     raxFreeWithCallback(rax,NULL);
 }
 
@@ -1275,7 +1275,7 @@ void raxFree(rax *rax) {
 /* Initialize a Rax iterator. This call should be performed a single time
  * to initialize the iterator, and must be followed by a raxSeek() call,
  * otherwise the raxPrev()/raxNext() functions will just return EOF. */
-void raxStart(raxIterator *it, rax *rt) {
+void raxStart(raxIterator *it, raxTree *rt) {
     it->flags = RAX_ITER_EOF; /* No crash if the iterator is not seeked. */
     it->rt = rt;
     it->key_len = 0;
@@ -1835,7 +1835,7 @@ int raxEOF(raxIterator *it) {
 }
 
 /* Return the number of elements inside the radix tree. */
-uint64_t raxSize(rax *rax) {
+uint64_t raxSize(raxTree *rax) {
     return rax->numele;
 }
 
@@ -1901,7 +1901,7 @@ void raxRecursiveShow(int level, int lpad, raxNode *n) {
 }
 
 /* Show a tree, as outlined in the comment above. */
-void raxShow(rax *rax) {
+void raxShow(raxTree *rax) {
     raxRecursiveShow(0,0,rax->head);
     putchar('\n');
 }

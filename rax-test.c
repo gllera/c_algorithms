@@ -250,7 +250,7 @@ static size_t int2key(char *s, size_t maxlen, uint32_t i, int mode) {
 /* Perform a fuzz test, returns 0 on success, 1 on error. */
 int fuzzTest(int keymode, size_t count, double addprob, double remprob) {
     hashtable *ht = htNew();
-    rax *rax = raxNew();
+    raxTree *rax = raxNew();
 
     printf("Fuzz test in mode %d [%zu]: ", keymode, count);
     fflush(stdout);
@@ -385,7 +385,7 @@ int arraySeek(arrayItem *array, int count, unsigned char *key, size_t len, char 
 
 int iteratorFuzzTest(int keymode, size_t count) {
     count = rand()%count;
-    rax *rax = raxNew();
+    raxTree *rax = raxNew();
     arrayItem *array = malloc(sizeof(arrayItem)*count);
 
     /* Fill a radix tree and a linear array with some data. */
@@ -491,7 +491,7 @@ int iteratorFuzzTest(int keymode, size_t count) {
 
 /* Test the random walk function. */
 int randomWalkTest(void) {
-    rax *t = raxNew();
+    raxTree *t = raxNew();
     char *toadd[] = {"alligator","alien","baloon","chromodynamic","romane","romanus","romulus","rubens","ruber","rubicon","rubicundus","all","rub","ba",NULL};
 
     long numele;
@@ -531,7 +531,7 @@ int randomWalkTest(void) {
 }
 
 int iteratorUnitTests(void) {
-    rax *t = raxNew();
+    raxTree *t = raxNew();
     char *toadd[] = {"alligator","alien","baloon","chromodynamic","romane","romanus","romulus","rubens","ruber","rubicon","rubicundus","all","rub","ba",NULL};
 
     for (int x = 0; x < 10000; x++) rand();
@@ -603,7 +603,7 @@ int iteratorUnitTests(void) {
 /* Test that raxInsert() / raxTryInsert() overwrite semantic
  * works as expected. */
 int tryInsertUnitTests(void) {
-    rax *t = raxNew();
+    raxTree *t = raxNew();
     raxInsert(t,(unsigned char*)"FOO",3,(void*)(long)1,NULL);
     void *old, *val;
     raxTryInsert(t,(unsigned char*)"FOO",3,(void*)(long)2,&old);
@@ -632,7 +632,7 @@ int tryInsertUnitTests(void) {
 
 /* Regression test #1: Iterator wrong element returned after seek. */
 int regtest1(void) {
-    rax *rax = raxNew();
+    raxTree *rax = raxNew();
     raxInsert(rax,(unsigned char*)"LKE",3,(void*)(long)1,NULL);
     raxInsert(rax,(unsigned char*)"TQ",2,(void*)(long)2,NULL);
     raxInsert(rax,(unsigned char*)"B",1,(void*)(long)3,NULL);
@@ -659,7 +659,7 @@ int regtest1(void) {
 
 /* Regression test #2: Crash when mixing NULL and not NULL values. */
 int regtest2(void) {
-    rax *rt = raxNew();
+    raxTree *rt = raxNew();
     raxInsert(rt,(unsigned char *)"a",1,(void *)100,NULL);
     raxInsert(rt,(unsigned char *)"ab",2,(void *)101,NULL);
     raxInsert(rt,(unsigned char *)"abc",3,(void *)NULL,NULL);
@@ -676,7 +676,7 @@ int regtest2(void) {
  * Note that this test always returns success but will trigger a
  * Valgrind error. */
 int regtest3(void) {
-    rax *rt = raxNew();
+    raxTree *rt = raxNew();
     raxInsert(rt, (unsigned char *)"D",1,(void*)1,NULL);
     raxInsert(rt, (unsigned char *)"",0,NULL,NULL);
     raxRemove(rt, (unsigned char *)"D",1,NULL);
@@ -692,7 +692,7 @@ int regtest3(void) {
  * is quite odd and may later protect against different bugs related to
  * storing and fetching the empty string key. */
 int regtest4(void) {
-    rax *rt = raxNew();
+    raxTree *rt = raxNew();
     raxIterator iter;
     raxInsert(rt, (unsigned char*)"", 0, (void *)-1, NULL);
     if (raxFind(rt, (unsigned char*)"", 0) != (void *)-1) {
@@ -713,7 +713,7 @@ int regtest4(void) {
 
 /* Less than seek bug when stopping in the middle of a compressed node. */
 int regtest5(void) {
-    rax *rax = raxNew();
+    raxTree *rax = raxNew();
 
     raxInsert(rax,(unsigned char*)"b",1,(void*)(long)1,NULL);
     raxInsert(rax,(unsigned char*)"ba",2,(void*)(long)2,NULL);
@@ -742,7 +742,7 @@ void benchmark(void) {
     for (int mode = 0; mode < 2; mode++) {
         printf("Benchmark with %s keys:\n",
             (mode == 0) ? "integer" : "alphanumerical");
-        rax *t = raxNew();
+        raxTree *t = raxNew();
         long long start = ustime();
         for (int i = 0; i < 5000000; i++) {
             char buf[64];
@@ -828,7 +828,7 @@ int testHugeKey(void) {
     memset(key,'a',max_keylen);
     key[10] = 'X';
     key[max_keylen-1] = 'Y';
-    rax *rax = raxNew();
+    raxTree *rax = raxNew();
     int retval = raxInsert(rax,(unsigned char*)"aaabbb",6,(void*)5678L,NULL);
     if (retval == 0 && errno == ENOMEM) goto oom;
     retval = raxInsert(rax,key,max_keylen,(void*)1234L,NULL);

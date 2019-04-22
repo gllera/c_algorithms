@@ -130,11 +130,11 @@ typedef struct raxNode {
     unsigned char data[];
 } raxNode;
 
-typedef struct rax {
+typedef struct raxTree {
     raxNode *head;
     uint64_t numele;
     uint64_t numnodes;
-} rax;
+} raxTree;
 
 /* Stack data structure used by raxLowWalk() in order to, optionally, return
  * a list of parent nodes to the caller. The nodes do not have a "parent"
@@ -174,7 +174,7 @@ typedef int (*raxNodeCallback)(raxNode **noderef);
                                   iterating. But it is slower. */
 typedef struct raxIterator {
     int flags;
-    rax *rt;                /* Radix tree we are iterating. */
+    raxTree *rt;                /* Radix tree we are iterating. */
     unsigned char *key;     /* The current string. */
     void *data;             /* Data associated to this key. */
     size_t key_len;         /* Current key length. */
@@ -189,14 +189,14 @@ typedef struct raxIterator {
 extern void *raxNotFound;
 
 /* Exported API. */
-rax *raxNew(void);
-int raxInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old);
-int raxTryInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old);
-int raxRemove(rax *rax, unsigned char *s, size_t len, void **old);
-void *raxFind(rax *rax, unsigned char *s, size_t len);
-void raxFree(rax *rax);
-void raxFreeWithCallback(rax *rax, void (*free_callback)(void*));
-void raxStart(raxIterator *it, rax *rt);
+raxTree *raxNew(void);
+int raxInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old);
+int raxTryInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old);
+int raxRemove(raxTree *rax, unsigned char *s, size_t len, void **old);
+void *raxFind(raxTree *rax, unsigned char *s, size_t len);
+void raxFree(raxTree *rax);
+void raxFreeWithCallback(raxTree *rax, void (*free_callback)(void*));
+void raxStart(raxIterator *it, raxTree *rt);
 int raxSeek(raxIterator *it, const char *op, unsigned char *ele, size_t len);
 int raxNext(raxIterator *it);
 int raxPrev(raxIterator *it);
@@ -204,8 +204,8 @@ int raxRandomWalk(raxIterator *it, size_t steps);
 int raxCompare(raxIterator *iter, const char *op, unsigned char *key, size_t key_len);
 void raxStop(raxIterator *it);
 int raxEOF(raxIterator *it);
-void raxShow(rax *rax);
-uint64_t raxSize(rax *rax);
+void raxShow(raxTree *rax);
+uint64_t raxSize(raxTree *rax);
 unsigned long raxTouch(raxNode *n);
 void raxSetDebugMsg(int onoff);
 
