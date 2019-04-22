@@ -48,10 +48,26 @@
 #define rax_free free
 #endif
 
+void *raxGetData(raxNode *n);
+raxNode *raxNewNode(size_t children, int datafield);
+raxNode *raxAddChild(raxNode *n, unsigned char c, raxNode **childptr, raxNode ***parentlink);
+raxNode *raxRemoveChild(raxNode *parent, raxNode *child);
+raxNode **raxFindParentLink(raxNode *parent, raxNode *child);
+raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **child);
+raxNode *raxReallocForData(raxNode *n, void *data);
+void raxRecursiveShow(int level, int lpad, raxNode *n);
+void raxRecursiveFree(rax *rax, raxNode *n, void (*free_callback)(void*));
+void raxIteratorDelChars(raxIterator *it, size_t count);
+int raxIteratorPrevStep(raxIterator *it, int noup);
+int raxIteratorNextStep(raxIterator *it, int noup);
+int raxIteratorAddChars(raxIterator *it, unsigned char *s, size_t len);
+int raxSeekGreatest(raxIterator *it);
+int raxGenericInsert(rax *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite);
+
 /* This is a special pointer that is guaranteed to never have the same value
  * of a radix tree node. It's used in order to report "not found" error without
  * requiring the function to have multiple return values. */
-void *raxNotFound = (void*)"rax-not-found-pointer";
+void *raxNotFound = (void*)(unsigned long)"rax-not-found-pointer";
 
 /* -------------------------------- Debugging ------------------------------ */
 
