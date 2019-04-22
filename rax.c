@@ -50,19 +50,19 @@
 
 void *raxGetData(raxNode *n);
 raxNode *raxNewNode(size_t children, int datafield);
-raxNode *raxAddChild(raxNode *n, unsigned char c, raxNode **childptr, raxNode ***parentlink);
+raxNode *raxAddChild(raxNode *n, const unsigned char c, raxNode **childptr, raxNode ***parentlink);
 raxNode *raxRemoveChild(raxNode *parent, raxNode *child);
 raxNode **raxFindParentLink(raxNode *parent, raxNode *child);
-raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **child);
+raxNode *raxCompressNode(raxNode *n, const unsigned char *s, size_t len, raxNode **child);
 raxNode *raxReallocForData(raxNode *n, void *data);
 void raxRecursiveShow(int level, int lpad, raxNode *n);
 void raxRecursiveFree(raxTree *rax, raxNode *n, void (*free_callback)(void*));
 void raxIteratorDelChars(raxIterator *it, size_t count);
 int raxIteratorPrevStep(raxIterator *it, int noup);
 int raxIteratorNextStep(raxIterator *it, int noup);
-int raxIteratorAddChars(raxIterator *it, unsigned char *s, size_t len);
+int raxIteratorAddChars(raxIterator *it, const unsigned char *s, size_t len);
 int raxSeekGreatest(raxIterator *it);
-int raxGenericInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite);
+int raxGenericInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old, int overwrite);
 
 /* This is a special pointer that is guaranteed to never have the same value
  * of a radix tree node. It's used in order to report "not found" error without
@@ -273,7 +273,7 @@ void *raxGetData(raxNode *n) {
  * On success the new parent node pointer is returned (it may change because
  * of the realloc, so the caller should discard 'n' and use the new value).
  * On out of memory NULL is returned, and the old node is still valid. */
-raxNode *raxAddChild(raxNode *n, unsigned char c, raxNode **childptr, raxNode ***parentlink) {
+raxNode *raxAddChild(raxNode *n, const unsigned char c, raxNode **childptr, raxNode ***parentlink) {
     assert(n->iscompr == 0);
 
     size_t curlen = raxNodeCurrentLength(n);
@@ -414,7 +414,7 @@ raxNode *raxAddChild(raxNode *n, unsigned char c, raxNode **childptr, raxNode **
  * The function also returns a child node, since the last node of the
  * compressed chain cannot be part of the chain: it has zero children while
  * we can only compress inner nodes with exactly one child each. */
-raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **child) {
+raxNode *raxCompressNode(raxNode *n, const unsigned char *s, size_t len, raxNode **child) {
     assert(n->size == 0 && n->iscompr == 0);
     void *data = NULL; /* Initialized only to avoid warnings. */
     size_t newsize;
@@ -476,7 +476,7 @@ raxNode *raxCompressNode(raxNode *n, unsigned char *s, size_t len, raxNode **chi
  * means that the current node represents the key (that is, none of the
  * compressed node characters are needed to represent the key, just all
  * its parents nodes). */
-static inline size_t raxLowWalk(raxTree *rax, unsigned char *s, size_t len, raxNode **stopnode, raxNode ***plink, int *splitpos, raxStack *ts) {
+static inline size_t raxLowWalk(raxTree *rax, const unsigned char *s, size_t len, raxNode **stopnode, raxNode ***plink, int *splitpos, raxStack *ts) {
     raxNode *h = rax->head;
     raxNode **parentlink = &rax->head;
 
@@ -526,7 +526,7 @@ static inline size_t raxLowWalk(raxTree *rax, unsigned char *s, size_t len, raxN
  * function returns 0 as well but sets errno to ENOMEM, otherwise errno will
  * be set to 0.
  */
-int raxGenericInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old, int overwrite) {
+int raxGenericInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old, int overwrite) {
     size_t i;
     int j = 0; /* Split position. If raxLowWalk() stops in a compressed
                   node, the index 'j' represents the char we stopped within the
@@ -921,21 +921,21 @@ oom:
 
 /* Overwriting insert. Just a wrapper for raxGenericInsert() that will
  * update the element if there is already one for the same key. */
-int raxInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old) {
+int raxInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old) {
     return raxGenericInsert(rax,s,len,data,old,1);
 }
 
 /* Non overwriting insert function: this if an element with the same key
  * exists, the value is not updated and the function returns 0.
  * This is a just a wrapper for raxGenericInsert(). */
-int raxTryInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old) {
+int raxTryInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old) {
     return raxGenericInsert(rax,s,len,data,old,0);
 }
 
 /* Find a key in the rax, returns raxNotFound special void pointer value
  * if the item was not found, otherwise the value associated with the
  * item is returned. */
-void *raxFind(raxTree *rax, unsigned char *s, size_t len) {
+void *raxFind(raxTree *rax, const unsigned char *s, size_t len) {
     raxNode *h;
 
     debugf("### Lookup: %.*s\n", (int)len, s);
@@ -1039,7 +1039,7 @@ raxNode *raxRemoveChild(raxNode *parent, raxNode *child) {
 
 /* Remove the specified item. Returns 1 if the item was found and
  * deleted, 0 otherwise. */
-int raxRemove(raxTree *rax, unsigned char *s, size_t len, void **old) {
+int raxRemove(raxTree *rax, const unsigned char *s, size_t len, void **old) {
     raxNode *h;
     raxStack ts;
 
@@ -1289,7 +1289,7 @@ void raxStart(raxIterator *it, raxTree *rt) {
 /* Append characters at the current key string of the iterator 'it'. This
  * is a low level function used to implement the iterator, not callable by
  * the user. Returns 0 on out of memory, otherwise 1 is returned. */
-int raxIteratorAddChars(raxIterator *it, unsigned char *s, size_t len) {
+int raxIteratorAddChars(raxIterator *it, const unsigned char *s, size_t len) {
     if (it->key_max < it->key_len+len) {
         unsigned char *old = (it->key == it->key_static_string) ? NULL :
                                                                   it->key;
@@ -1527,7 +1527,7 @@ int raxIteratorPrevStep(raxIterator *it, int noup) {
  * Return 0 if the seek failed for syntax error or out of memory. Otherwise
  * 1 is returned. When 0 is returned for out of memory, errno is set to
  * the ENOMEM value. */
-int raxSeek(raxIterator *it, const char *op, unsigned char *ele, size_t len) {
+int raxSeek(raxIterator *it, const char *op, const unsigned char *ele, size_t len) {
     int eq = 0, lt = 0, gt = 0, first = 0, last = 0;
 
     it->stack.items = 0; /* Just resetting. Intialized by raxStart(). */
@@ -1793,7 +1793,7 @@ int raxRandomWalk(raxIterator *it, size_t steps) {
 /* Compare the key currently pointed by the iterator to the specified
  * key according to the specified operator. Returns 1 if the comparison is
  * true, otherwise 0 is returned. */
-int raxCompare(raxIterator *iter, const char *op, unsigned char *key, size_t key_len) {
+int raxCompare(raxIterator *iter, const char *op, const unsigned char *key, size_t key_len) {
     int eq = 0, lt = 0, gt = 0;
 
     if (op[0] == '=' || op[1] == '=') eq = 1;

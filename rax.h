@@ -191,18 +191,18 @@ extern void *raxNotFound;
 
 /* Exported API. */
 raxTree *raxNew(void);
-int raxInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old);
-int raxTryInsert(raxTree *rax, unsigned char *s, size_t len, void *data, void **old);
-int raxRemove(raxTree *rax, unsigned char *s, size_t len, void **old);
-void *raxFind(raxTree *rax, unsigned char *s, size_t len);
+int raxInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old);
+int raxTryInsert(raxTree *rax, const unsigned char *s, size_t len, void *data, void **old);
+int raxRemove(raxTree *rax, const unsigned char *s, size_t len, void **old);
+void *raxFind(raxTree *rax, const unsigned char *s, size_t len);
 void raxFree(raxTree *rax);
 void raxFreeWithCallback(raxTree *rax, void (*free_callback)(void*));
 void raxStart(raxIterator *it, raxTree *rt);
-int raxSeek(raxIterator *it, const char *op, unsigned char *ele, size_t len);
+int raxSeek(raxIterator *it, const char *op, const unsigned char *ele, size_t len);
 int raxNext(raxIterator *it);
 int raxPrev(raxIterator *it);
 int raxRandomWalk(raxIterator *it, size_t steps);
-int raxCompare(raxIterator *iter, const char *op, unsigned char *key, size_t key_len);
+int raxCompare(raxIterator *iter, const char *op, const unsigned char *key, size_t key_len);
 void raxStop(raxIterator *it);
 int raxEOF(raxIterator *it);
 void raxShow(raxTree *rax);
