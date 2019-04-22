@@ -36,11 +36,17 @@
 #include <math.h>
 #include "rax.h"
 
-#ifndef RAX_MALLOC_INCLUDE
-#define RAX_MALLOC_INCLUDE "rax_malloc.h"
-#endif
+/* Allocator selection.
+ *
+ * To change the Rax allocator at compile time just define the following
+ * defines to what you want to use. */
 
-#include RAX_MALLOC_INCLUDE
+#ifndef RAX_ALLOC_H
+#define RAX_ALLOC_H
+#define rax_malloc malloc
+#define rax_realloc realloc
+#define rax_free free
+#endif
 
 /* This is a special pointer that is guaranteed to never have the same value
  * of a radix tree node. It's used in order to report "not found" error without
