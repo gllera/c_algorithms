@@ -1,3 +1,6 @@
+#ifndef _SUFFIX_MATCHER_H_
+#define _SUFFIX_MATCHER_H_
+
 struct suffix_matcher {
 	int n, max;
 	char **suffixs;
@@ -8,3 +11,5 @@ void suffix_matcher_free(struct suffix_matcher *head);
 void suffix_matcher_clear(struct suffix_matcher *head);
 int suffix_matcher_add(struct suffix_matcher *head, const char *txt, int len);
 int suffix_matcher_find(const struct suffix_matcher *head, const char *txt, int len);
+
+#endif /* _SUFFIX_MATCHER_H_ */
