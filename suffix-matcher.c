@@ -36,6 +36,10 @@ int suffix_matcher_add(struct suffix_matcher *head, const char *txt, int len) {
 	}
 
 	char *cp = malloc(len + 1 + LENGTH_OFFSET);
+
+	if (!cp)
+		return 1;
+
 	*((int *)cp) = len;
 
 	memcpy(cp + LENGTH_OFFSET, txt, len);
