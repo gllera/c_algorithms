@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <string.h>
-#include "simple-suffix.h"
+#include "suffix-matcher.h"
 
 static char ***create_tests();
 static char *random_string(int size);

@@ -3,7 +3,7 @@ DEBUG= -g -ggdb
 CFLAGS= -Og -Wall -W -std=c99
 LDFLAGS= -lm
 
-all: dir build/simple-suffix-tester
+all: dir build/suffix-matcher-tester
 
 dir:
 	@mkdir -p build
@@ -11,5 +11,5 @@ dir:
 build/%.o: %.c
 	$(CC) -o $@ $< -c $(CFLAGS) $(DEBUG)
 
-build/simple-suffix-tester: build/simple-suffix.o build/simple-suffix-tester.o
+build/suffix-matcher-tester: build/suffix-matcher.o build/suffix-matcher-tester.o
 	$(CC) -o $@ $^ $(LDFLAGS) $(DEBUG)
