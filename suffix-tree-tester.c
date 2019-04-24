@@ -1,13 +1,112 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <string.h>
 #include "suffix-tree.h"
 
-suffix_tree head;
+static unsigned char ***create_tests();
 
-static unsigned char *rand_string(unsigned char *str, int size)
-{
+#define TESTS_CASES_COUNT 2
+#define STRINGS_COUNT_PER_TEST 1000
+#define STRING_LENGTH_PER_TEST 200
+
+int main() {
+    int i, j;
+    int total = 100000;
+    int length = STRING_LENGTH_PER_TEST / 2;
+
+    clock_t start;
+    double cpu_time_used;
+    unsigned char ***tests = create_tests();
+
+    suffix_tree head;
+    suffix_tree_init(&head);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Adding %d random elements of length %d -> ", STRINGS_COUNT_PER_TEST, length);
+
+    start = clock();
+
+    for (i = 0; i < STRINGS_COUNT_PER_TEST; i++)
+        suffix_tree_add(&head, tests[0][i], length);
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Checking %d times using strncmp -> ", total);
+
+    start = clock();
+
+    for (i = 0; i < total; i++)
+        for (j = 0; j < total; j++)
+        if (strncmp((char *)tests[0][i%STRINGS_COUNT_PER_TEST], (char *)tests[0][i%STRINGS_COUNT_PER_TEST], length))
+            printf("TEST FAILED\n");
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Checking %d times using preffix tree -> ", total);
+
+    start = clock();
+
+    for (i = 0; i < total; i++)
+        if (!suffix_tree_find(&head, tests[0][i%STRINGS_COUNT_PER_TEST], length))
+            printf("TEST FAILED\n");
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Checking %d times bigger preffix using preffix tree -> ", total);
+
+    start = clock();
+
+    for (i = 0; i < total; i++)
+        if (!suffix_tree_find(&head, tests[0][i%STRINGS_COUNT_PER_TEST], length * 2))
+            printf("TEST FAILED\n");
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Checking %d times smaller preffix using preffix tree -> ", total);
+
+    start = clock();
+
+    for (i = 0; i < total; i++)
+        if (suffix_tree_find(&head, tests[0][i%STRINGS_COUNT_PER_TEST], length / 2))
+            printf("TEST FAILED\n");
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+
+    ///////////////////////////////////////////////////////////
+    printf("Checking %d times smaller different preffix using preffix tree -> ", total);
+
+    start = clock();
+
+    for (i = 0; i < total; i++)
+        if (suffix_tree_find(&head, tests[1][i%STRINGS_COUNT_PER_TEST], length / 2))
+            printf("TEST FAILED\n");
+
+    cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    printf("done in %f\n", cpu_time_used);
+
+    return 0;
+}
+
+static unsigned char *random_string(int size) {
     const unsigned char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_().";
+    unsigned char *str = malloc(size + 1);
 
     for (int n = 0; n < size; n++) {
         int key = rand() % (int) (sizeof charset - 1);
@@ -15,88 +114,36 @@ static unsigned char *rand_string(unsigned char *str, int size)
     }
 
     str[size] = '\0';
-
     return str;
 }
 
-unsigned char* rand_string_alloc(int size)
+static unsigned char ***create_tests()
 {
-     unsigned char *s = malloc(size + 1);
-     rand_string(s, size);
-     return s;
-}
+    int i, j, match;
+    unsigned char * tmp;
+    unsigned char ***tests = malloc(TESTS_CASES_COUNT * sizeof(unsigned char **));
 
-void check_test(unsigned char *s) {
-    int length = strlen((char *)s);
+    for (i = 0; i < TESTS_CASES_COUNT; i++)
+        tests[i] = malloc(STRINGS_COUNT_PER_TEST * sizeof(unsigned char *));
 
-    if (!suffix_tree_find(&head, s, length)) {
-        printf("not found\n");
-    }
-}
+    for (i = 0; i < STRINGS_COUNT_PER_TEST; i++)
+        tests[0][i] = random_string(STRING_LENGTH_PER_TEST);
 
-int main() {
-    suffix_tree_init(&head);
+    for (i = 0; i < STRINGS_COUNT_PER_TEST; i++) {
+        do{
+            match = 0;
+            tmp = random_string(STRING_LENGTH_PER_TEST / 1.5);
 
-    unsigned char *tests[100];
-    int i, length = 60, total = 100;
+            for (j = 0; j < STRINGS_COUNT_PER_TEST && !match; j++)
+                if (!strncmp((char *)tmp, (char *)tests[0][j], STRING_LENGTH_PER_TEST / 2)) {
+                    free(tmp);
+                    match = 1;
+                }
 
-    printf("Adding\n");
+        } while(match);
 
-    for (i = 0; i < total; i++) {
-        tests[i] = rand_string_alloc(length);
-        suffix_tree_add(&head, tests[i], length);
-    }
-
-    printf("Checking\n");
-
-    for (i = 0; i < 100000; i++) {
-        check_test(tests[i%100]);
+        tests[1][i] = tmp;
     }
 
-    // rax *t = raxNew();
-    // raxInsert(t,(unsigned char*)"FOO",3,(void*)(long)1,NULL);
-    // void *old, *val;
-    // raxTryInsert(t,(unsigned char*)"FOO",3,(void*)(long)2,&old);
-    // if (old != (void*)(long)1) {
-    //     printf("Old value not returned correctly by raxTryInsert(): %p",
-    //         old);
-    //     return 1;
-    // }
-
-    // val = raxFind(t,(unsigned char*)"FOO",3);
-    // if (val != (void*)(long)1) {
-    //     printf("FOO value mismatch: is %p intead of 1", val);
-    //     return 1;
-    // }
-
-    // raxInsert(t,(unsigned char*)"FOO",3,(void*)(long)2,NULL);
-    // val = raxFind(t,(unsigned char*)"FOO",3);
-    // if (val != (void*)(long)2) {
-    //     printf("FOO value mismatch: is %p intead of 2", val);
-    //     return 1;
-    // }
-
-    // raxFree(t);
-    // return 0;
-
-    // struct bin_entry_head head;
-    // STAILQ_INIT(&head);
-
-    // struct entry *n1 = malloc(sizeof(struct entry));
-    // struct entry *n2  = malloc(sizeof(struct entry));
-    // n1->num = 4;
-    // n2->num = 5;
-
-    // STAILQ_INSERT_TAIL(&head, n1, entries);
-    // STAILQ_INSERT_TAIL(&head, n2, entries);
-
-    // STAILQ_FOREACH(np, &head, entries) {
-    //     printf("%d", np->num);
-    // }
-
-    // while (!STAILQ_EMPTY(&head))
-    //     STAILQ_REMOVE_HEAD(&head, entries);
-
-    return 0;
-
+    return tests;
 }
