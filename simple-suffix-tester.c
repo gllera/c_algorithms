@@ -44,8 +44,8 @@ int main() {
 
     start = clock();
 
-    for (i = 0; i < total * 1000; i++)
-        for (j = 0; j < total * 1000; j++)
+    for (i = 0; i < total; i++)
+        for (j = 0; j < total; j++)
             if (strncmp(tests[0][(i+j)%STRINGS_COUNT_PER_TEST], tests[0][(i+j)%STRINGS_COUNT_PER_TEST], length))
                 printf("TEST FAILED\n");
 

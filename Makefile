@@ -1,6 +1,6 @@
 CC=gcc
-#DEBUG= -g -ggdb
-CFLAGS= -O3 -Wall -W -std=c99
+DEBUG= -g -ggdb
+CFLAGS= -Og -Wall -W -std=c99
 LDFLAGS= -lm
 
 all: dir build/simple-suffix-tester
