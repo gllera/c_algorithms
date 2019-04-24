@@ -8,7 +8,7 @@ int suffix_matcher_init(struct suffix_matcher *head) {
 	head->n = 0;
 	head->max = 100;
 	head->suffixs = malloc(head->max * sizeof(char *));
-	return head->suffixs != NULL;
+	return head->suffixs == NULL;
 }
 
 void suffix_matcher_free(struct suffix_matcher *head) {
