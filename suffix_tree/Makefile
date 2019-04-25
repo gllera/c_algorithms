@@ -3,7 +3,7 @@ DEBUG= -g -ggdb
 CFLAGS= -O0 -Wall -W -std=c99
 LDFLAGS= -lm
 
-all: dir build/suffix-tree-tester
+all: dir build/suffix_tree_tester
 
 dir:
 	@mkdir -p build
@@ -11,5 +11,5 @@ dir:
 build/%.o: %.c
 	$(CC) -o $@ $< -c $(CFLAGS) $(DEBUG)
 
-build/suffix-tree-tester: build/suffix-tree.o build/suffix-tree-tester.o
+build/suffix_tree_tester: build/suffix_tree.o build/suffix_tree_tester.o
 	$(CC) -o $@ $^ $(LDFLAGS) $(DEBUG)

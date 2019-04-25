@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <string.h>
-#include "suffix-tree.h"
+#include "suffix_tree.h"
 
 static unsigned char ***create_tests();
 

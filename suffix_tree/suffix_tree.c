@@ -1,4 +1,4 @@
-#include "suffix-tree.h"
+#include "suffix_tree.h"
 #include <stdlib.h>
 
 typedef struct suffix_tree_entry entry_type;
