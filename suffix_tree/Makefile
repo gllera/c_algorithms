@@ -5,6 +5,9 @@ LDFLAGS= -lm
 
 all: dir build/suffix_tree_tester
 
+clean:
+	@rm -rf build
+
 dir:
 	@mkdir -p build
 

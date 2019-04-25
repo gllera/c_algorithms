@@ -1,18 +1,18 @@
 CC=gcc
+DEBUG= -g -ggdb
+CFLAGS= -O0 -Wall -W -std=c99
+LDFLAGS= -lm
 
-CFLAGS   = -Os -g -fno-common
-CFLAGS  += -W -Wall
-CFLAGS  += -D_FILE_OFFSET_BITS=64
-CFLAGSW += -Wbad-function-cast -Wcast-align -Wcast-qual -Wchar-subscripts -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wredundant-decls -Wshadow -Wstrict-prototypes -Wwrite-strings -Wswitch-enum
+all: dir build/rax_tester
 
-LDFLAGS = -lm
+clean:
+	@rm -rf build
 
-rax-test: rax-test.o rax.o
-	$(CC) -o $@ $^ $(LDFLAGS)
+dir:
+	@mkdir -p build
 
-rax.o: rax.c
-	$(CC) $(CFLAGS) $(CFLAGSW) -o $@ -c $<
+build/%.o: %.c
+	$(CC) -o $@ $< -c $(CFLAGS) $(DEBUG)
 
-rax-test.o: rax-test.c
-	$(CC) $(CFLAGS) -o $@ -c $<
-
+build/rax_tester: build/rax.o build/rax_tester.o
+	$(CC) -o $@ $^ $(LDFLAGS) $(DEBUG)
