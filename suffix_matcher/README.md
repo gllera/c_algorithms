@@ -1,3 +1,5 @@
+Simple suffix matcher in C checked with valgrind to avoid memory leaks.
+
 Basic usage:
 
 ```
