@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "suffix-matcher.h"
+#include "suffix_matcher.h"
 
 #define LENGTH_OFFSET sizeof(int)
 
