@@ -37,7 +37,7 @@ int main() {
 
 
     ///////////////////////////////////////////////////////////
-    printf("Checking %d times using strncmp -> ", total);
+    printf("Checking %d times using strncmp equivalent -> ", total);
 
     start = clock();
 
