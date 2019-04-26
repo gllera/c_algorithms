@@ -13,10 +13,10 @@ DEPS     ?= $(patsubst %.c,$(BUILDDIR)/%.o,$(SOURCES))
 
 .INTERMEDIATE: $(DEPS)
 
-run: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
+build: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
 
 gdb: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
-	gdb -x ../.gdbrc --args $(BUILDDIR)/$(PROJECT)
+	+gdb -x ../.gdbrc --args $(BUILDDIR)/$(PROJECT)
 
 clean:
 	@echo "- $(PROJECT)/$(BUILDDIR)"

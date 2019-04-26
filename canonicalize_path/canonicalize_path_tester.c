@@ -1,65 +1,97 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <string.h>
+#include <unistd.h>
+#include "canonicalize_path.h"
 
-#define PATH_SEPARATOR '/'
-#define PATH_MAX 4000
+#define MAX_OUTPUT 100
 
-// int canonicalize_path(const char *src, const char *dest, const char *wd, int wd_len) {
-//     const char *start, *end;
-//     const char *limit = dest + PATH_MAX;
-//     char *cur;
+static void test(const char *src, const char *wd)
+{
+	char dest[PATH_MAX];
+	char real[PATH_MAX];
 
-//     if (src[0] != PATH_SEPARATOR)
-//     {
-//         memcpy(dest, wd, wd_len);
-//         cur = dest + wd_len;
-//     }
-//     else
-//     {
-//         dest[0] = PATH_SEPARATOR;
-//         cur = dest + 1;
-//     }
+	int fail1 = canonicalize_path(src, dest, wd, strlen(wd)) == 0;
+	int fail2 = realpath(src, real) == NULL;
 
-//     for (start = src; *start; start = end)
-//     {
-//         while (*start == PATH_SEPARATOR)
-//             start++;
+	if (fail1 != fail2)
+	{
+		printf("[FAIL] '%s' -> '%d'\nexpected: '%d'\n", src, fail1, fail2);
+	}
+	else if (fail1)
+	{
+		printf("[OK] '%.*s' -> [NOT POSIBLE]\n", MAX_OUTPUT, src);
+	}
+	else if (strcmp(dest, real))
+	{
+		printf("[FAIL] '%s' -> '%s'\nexpected: '%s'\n", src, dest, real);
+	}
+	else
+	{
+		printf("[OK] '%.*s' -> '%.*s'\n", MAX_OUTPUT, src, MAX_OUTPUT, dest);
+	}
+}
 
-//         for (end = start; *end && *end != PATH_SEPARATOR; end++);
+// static void bench(const char **tests, int tests_len, const char *wd)
+// {
+//     char dest[PATH_MAX];
+//     clock_t start;
+//     double time1, time2;
+//     int wd_len = strlen(wd);
 
-//         if (end - start == 0)
-//             break;
+// 	for (int i = 0; i < tests_len; i++) {
+//         start = clock();
 
-//         if (end - start == 1 && start[0] == '.')
-//             continue;
+//         for (int j = 0; j < TESTS_TIMES; j++)
+//             canonicalize_path(tests[i], dest, wd, wd_len);
 
-//         if (end - start == 2 && start[0] == '.' && start[1] == '.')
-//         {
-//             /* Ignore if at root already.  */
-//             if (cur > dest + 1)
-//                 while ((--cur)[-1] != PATH_SEPARATOR);
+//         time1 = ((double) (clock() - start)) / CLOCKS_PER_SEC;
 
-//         }
-//         else
-//         {
-//             if (cur[-1] != PATH_SEPARATOR)
-//                 *cur++ = PATH_SEPARATOR;
+//         start = clock();
 
-//             if (cur + (end - start) >= limit)
-//                 return 0;
+//         for (int j = 0; j < TESTS_TIMES; j++)
+//             realpath(tests[i], dest);
 
-//             cur = memcpy(cur, start, end - start);
-//             *cur = '\0';
-//         }
-//     }
-
-//     return cur - dest;
+//         time2 = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+//         printf("%f vs %f diff %f on %.*s\n", time1, time2, time2 - time1, MAX_OUTPUT, tests[i]);
+// 	}
 // }
 
-int main(void) {
+int main(void)
+{
+	char wd[PATH_MAX];
+	char root[PATH_MAX];
+	char big_path[PATH_MAX];
 
-    return 0;
+	memset(root, '/', sizeof(root));
+	memset(big_path, 'a', sizeof(big_path));
+	root[PATH_MAX-1] = big_path[PATH_MAX-1] = 0;
+
+	if (!getcwd(wd, PATH_MAX))
+	{
+		fprintf(stderr, "getcwd()");
+		return 1;
+	}
+
+	const char *tests[] = {
+		".", "..", "../", "../..", "../../",
+		"../../../../../../../../../../../../",
+		"/bin", "/bin/./", "/./bin/./", "/./bin/../",
+		"////////////bin", "/bin//////////",
+		"/usr/bin", "/usr/bin/../", "/usr/lib", "/usr/bin",
+		"/usr/lib/./././././././",
+		wd, root, big_path
+	};
+
+	printf("Tests...\n");
+	for (unsigned int i = 0; i < sizeof(tests)/sizeof(char *); i++)
+		test(tests[i], wd);
+
+	// printf("\nBenchmarks...\n");
+	// bench(tests, sizeof(tests)/sizeof(char *), wd);
+
+	return 0;
 }
