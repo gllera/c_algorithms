@@ -1,9 +1,10 @@
-all:
-	$(MAKE) -C compressed_suffix_tree
-	$(MAKE) -C suffix_matcher
-	$(MAKE) -C suffix_tree
+SUBDIRS := $(wildcard ./*/.)
+SUBDIRS := $(patsubst %/.,%,$(SUBDIRS))
 
-clean:
-	$(MAKE) clean -C compressed_suffix_tree
-	$(MAKE) clean -C suffix_matcher
-	$(MAKE) clean -C suffix_tree
+all: build($(SUBDIRS))
+clean: clean($(SUBDIRS))
+
+build(%):
+	@$(MAKE) -C $%
+clean(%):
+	@$(MAKE) -C $% clean
