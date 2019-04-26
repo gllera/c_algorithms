@@ -1,17 +1,18 @@
-CC=gcc
-CFLAGS= -O0 -Wall -W -std=c99 -g -ggdb
-LDFLAGS= -lm
+CC       ?= gcc
+CFLAGS   ?= -O0 -Wall -W -std=c99 -g -ggdb
+LDFLAGS  ?= -lm
 
-BUILDDIR = bin
-SOURCES = $(wildcard *.c)
-DEPS = $(patsubst %.c,$(BUILDDIR)/%.o,$(SOURCES))
+BUILDDIR ?= bin
+PROJECT  ?= $(notdir $(CURDIR))
+SOURCES  ?= $(wildcard *.c)
+DEPS     ?= $(patsubst %.c,$(BUILDDIR)/%.o,$(SOURCES))
 
 .INTERMEDIATE: $(DEPS)
 
 run: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
 
 clean:
-	@rm -rf $(BUILDDIR)
+	rm -rf $(BUILDDIR)
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
