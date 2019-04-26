@@ -1,1 +1,1 @@
-include ../standard_defs.mk
+include ../.defs.mk

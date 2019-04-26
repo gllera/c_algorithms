@@ -2,7 +2,7 @@ CC       ?= gcc
 LDFLAGS  ?= -lm
 
 ifndef CFLAGS
-CFLAGS   ?= -std=c99 -g -O0
+CFLAGS   += -std=c99 -g -O0
 CFLAGS   += -W -Wall -Wbad-function-cast -Wcast-align -Wcast-qual -Wchar-subscripts -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wredundant-decls -Wshadow -Wstrict-prototypes -Wwrite-strings -Wswitch-enum -fno-common
 endif
 
