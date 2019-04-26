@@ -1,3 +1,4 @@
-Implementation of a [suffix tree](https://en.wikipedia.org/wiki/Generalized_suffix_tree) in C with a twist:
-
-If "abc" is in the tree, it will match all checks that has that prefix also, like "abcd", "abcdefg", "abcsv sd fa", etc.
+Copy of [glibc](https://github.com/lattera/glibc/blob/master/stdlib/canonicalize.c) that differs on:
+- Does not follow symlinks
+- Does not do mallocs
+- Uses a provided workspace instead of the current one.

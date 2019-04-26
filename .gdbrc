@@ -1,0 +1,37 @@
+b main
+
+set confirm off
+set print address off
+set print array on
+set print pretty on
+set print union on
+
+alias ia = info args
+alias sv = set var
+
+r
+
+########- FLOW -########
+#
+#   s   -> Go to next instruction diving into functions.
+#   n   -> Go to next instruction but don't dive into functions.
+#   fin -> Continue running until the current function returns. Print the returned value (if any).
+#   c   -> Continue normal execution.
+#   q   -> Exits gdb leaving the debugged program continuing its execution as normal.
+#
+#   b <where> [if <condition>] -> Set a new breakpoint.
+#
+########- VIEW -########
+#
+#   p          -> Print content of variable/memory location/register.
+#   bt         -> Show call stack.
+#   f <frame#> -> Select the stack frame to operate on.
+#   up         -> Select the parent stack frame to operate on.
+#   do         -> Select the child stack frame to operate on.
+#   info args  -> Print content of current function args.
+#
+########- MODIFY -########
+#
+#   set var <variable_name>=<value>  -> Changes a variable content
+#   r <expression>                   -> Executes a "return <expression>" instruction on the current function.
+#

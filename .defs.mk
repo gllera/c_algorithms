@@ -15,6 +15,9 @@ DEPS     ?= $(patsubst %.c,$(BUILDDIR)/%.o,$(SOURCES))
 
 run: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
 
+gdb: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
+	gdb -x ../.gdbrc --args $(BUILDDIR)/$(PROJECT)
+
 clean:
 	rm -rf $(BUILDDIR)
 
