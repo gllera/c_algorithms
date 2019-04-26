@@ -5,13 +5,13 @@
 #include <string.h>
 #include "suffix_tree.h"
 
-static unsigned char ***create_tests();
+static unsigned char ***create_tests(void);
 
 #define TESTS_CASES_COUNT 2
 #define STRINGS_COUNT_PER_TEST 1000
 #define STRING_LENGTH_PER_TEST 200
 
-int main() {
+int main(void) {
     int i, j;
     int total = 100000;
     int length = STRING_LENGTH_PER_TEST / 2;
@@ -117,7 +117,7 @@ static unsigned char *random_string(int size) {
     return str;
 }
 
-static unsigned char ***create_tests()
+static unsigned char ***create_tests(void)
 {
     int i, j, match;
     unsigned char * tmp;

@@ -5,14 +5,14 @@
 #include <string.h>
 #include "suffix_matcher.h"
 
-static char ***create_tests();
+static char ***create_tests(void);
 static char *random_string(int size);
 
 #define TESTS_CASES_COUNT 2
 #define STRINGS_COUNT_PER_TEST 10000
 #define STRING_LENGTH_PER_TEST 200
 
-int main() {
+int main(void) {
     int i, j;
     int total = STRINGS_COUNT_PER_TEST;
     int length = STRING_LENGTH_PER_TEST / 3;
@@ -131,7 +131,7 @@ static char *random_string(int size) {
     return str;
 }
 
-static char ***create_tests()
+static char ***create_tests(void)
 {
     int i;
     char ***tests = malloc(TESTS_CASES_COUNT * sizeof(char **));
