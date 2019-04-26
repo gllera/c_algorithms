@@ -19,13 +19,16 @@ gdb: $(BUILDDIR) $(BUILDDIR)/$(PROJECT)
 	gdb -x ../.gdbrc --args $(BUILDDIR)/$(PROJECT)
 
 clean:
-	rm -rf $(BUILDDIR)
+	@echo "- $(PROJECT)/$(BUILDDIR)"
+	@rm -rf $(BUILDDIR)
 
 $(BUILDDIR):
-	@mkdir -p $(BUILDDIR)
+	@mkdir -p $@
 
 $(BUILDDIR)/%.o: %.c
-	$(CC) -o $@ $< -c $(CFLAGS)
+	@echo "+ $(notdir $@)"
+	@$(CC) -o $@ $< -c $(CFLAGS)
 
 $(BUILDDIR)/%: $(DEPS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	@echo "@ $(notdir $@)"
+	@$(CC) -o $@ $^ $(LDFLAGS)
